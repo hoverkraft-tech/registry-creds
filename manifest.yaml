@@ -12,6 +12,7 @@ metadata:
     controller-gen.kubebuilder.io/version: v0.13.0
   name: clusterpullsecrets.ops.alexellis.io
 spec:
+  preserveUnknownFields: false
   group: ops.alexellis.io
   names:
     kind: ClusterPullSecret
