@@ -50,3 +50,38 @@ jobs:
       - name: Check deployment
         run:
           kubectl rollout status -n registry-creds-system deploy/registry-creds-registry-creds-controller --timeout=2m || kubectl describe -n registry-creds-system deploy/registry-creds-registry-creds-controller && kubectl get events -n registry-creds-system
+
+      - name: Check ClusterPullSecret replication
+        run: |
+          kubectl create secret generic registry-creds-ci-seed \
+            --namespace=kube-system \
+            --type=kubernetes.io/dockerconfigjson \
+            --from-literal=.dockerconfigjson='{"auths":{"https://index.docker.io/v1/":{"auth":"Y2ktdGVzdDpjaS10ZXN0"}}}'
+
+          kubectl apply -f - <<'EOF'
+          apiVersion: ops.alexellis.io/v1
+          kind: ClusterPullSecret
+          metadata:
+            name: registry-creds-ci
+          spec:
+            secretRef:
+              name: registry-creds-ci-seed
+              namespace: kube-system
+          EOF
+
+          for attempt in {1..60}; do
+            if kubectl get secret registry-creds-ci --namespace=default --output=name | grep -q .; then
+              break
+            fi
+            if [ "$attempt" -eq 60 ]; then
+              echo "Timed out waiting for registry-creds-ci in the default namespace"
+              kubectl describe clusterpullsecret registry-creds-ci
+              exit 1
+            fi
+            sleep 2
+          done
+
+          test "$(kubectl get secret registry-creds-ci --namespace=default --output=jsonpath='{.type}')" = "kubernetes.io/dockerconfigjson"
+          seed_data=$(kubectl get secret registry-creds-ci-seed --namespace=kube-system --output=jsonpath='{.data.\.dockerconfigjson}')
+          replicated_data=$(kubectl get secret registry-creds-ci --namespace=default --output=jsonpath='{.data.\.dockerconfigjson}')
+          test "$replicated_data" = "$seed_data"
