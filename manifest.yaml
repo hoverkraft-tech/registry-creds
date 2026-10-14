@@ -221,7 +221,7 @@ spec:
         - --enable-leader-election
         command:
         - /controller
-        image: ghcr.io/alexellis/registry-creds:0.3.2
+        image: ghcr.io/hoverkraft-tech/registry-creds:0.3.2
         imagePullPolicy: IfNotPresent
         name: controller
         resources:

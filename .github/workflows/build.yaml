@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      IMAGE: ghcr.io/${{ github.repository }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -28,7 +30,7 @@ jobs:
             GitCommit=${{ github.sha }}
           outputs: "type=docker,push=false"
           platforms: linux/amd64
-          tags: ghcr.io/alexellis/registry-creds:${{ github.sha }}
+          tags: ${{ env.IMAGE }}:${{ github.sha }}
 
       - name: Setup Kubernetes
         uses: helm/kind-action@v1
@@ -37,10 +39,10 @@ jobs:
           node_image: "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5"
 
       - name: Load test image
-        run: kind load --loglevel trace docker-image ghcr.io/alexellis/registry-creds:${{ github.sha }}
+        run: kind load docker-image "$IMAGE:${GITHUB_SHA}"
       - name: Apply manifests
         run: |
-          TAG=${{ github.sha }} make shrinkwrap
+          TAG="$GITHUB_SHA" IMAGE="$IMAGE" make shrinkwrap
           cat ./manifest.yaml | grep ghcr
           kubectl apply -f ./manifest.yaml
 
