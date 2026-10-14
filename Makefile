@@ -1,6 +1,7 @@
 
 # Image URL to use all building/pushing image targets
 TAG?=latest
+IMAGE?=ghcr.io/hoverkraft-tech/registry-creds
 
 export DOCKER_CLI_EXPERIMENTAL=enabled
 
@@ -35,13 +36,13 @@ uninstall: manifests
 
 # Deploy controller in the configured Kubernetes cluster in ~/.kube/config
 deploy: manifests
-	cd config/controller && kustomize edit set image controller=ghcr.io/ghcr.io/alexellis/registry-creds:$(TAG)
+	cd config/controller && kustomize edit set image controller=$(IMAGE):$(TAG)
 	kustomize build config/default | kubectl apply -f -
 
 .PHONY: shrinkwrap
 shrinkwrap:
 	cd config/default && \
-	kustomize edit set image ghcr.io/ghcr.io/alexellis/registry-creds:$(TAG) && \
+	kustomize edit set image ghcr.io/hoverkraft-tech/registry-creds=$(IMAGE):$(TAG) && \
 	kustomize build > ../../manifest.yaml
 # Generate manifests e.g. CRD, RBAC etc.
 manifests: controller-gen
@@ -64,7 +65,7 @@ docker-build:
 	@docker buildx create --use --name=multiarch --node=multiarch && \
 	docker buildx build \
 		--output "type=docker,push=false" \
-		--tag ghcr.io/alexellis/registry-creds:$(TAG) \
+		--tag $(IMAGE):$(TAG) \
 		.
 
 .PHONY: docker-publish # Push the docker image to the remote registry
@@ -73,7 +74,7 @@ docker-publish:
 	docker buildx build \
 		--platform linux/amd64,linux/arm64,linux/arm/v7 \
 		--output "type=image,push=true" \
-		--tag ghcr.io/alexellis/registry-creds:$(TAG) .
+		--tag $(IMAGE):$(TAG) .
 
 # find or download controller-gen
 # download controller-gen if necessary
