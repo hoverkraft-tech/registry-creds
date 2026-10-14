@@ -70,7 +70,7 @@ jobs:
           EOF
 
           for attempt in {1..60}; do
-            if kubectl get secret registry-creds-ci --namespace=default --output=name | grep -q .; then
+            if kubectl get secret registry-creds-ci --namespace=default --output=name >/dev/null 2>&1; then
               break
             fi
             if [ "$attempt" -eq 60 ]; then
