@@ -3,28 +3,33 @@ tag-template: "$RESOLVED_VERSION"
 categories:
   - title: "🚀 Features"
     semver-increment: minor
-    labels:
-      - feature
-      - enhancement
+    when:
+      labels:
+        - feature
+        - enhancement
   - title: "🐛 Bug fixes"
     semver-increment: patch
-    labels:
-      - bug
-      - bugfix
-      - fix
+    when:
+      labels:
+        - bug
+        - bugfix
+        - fix
   - title: "🧰 Maintenance"
     semver-increment: patch
-    labels:
-      - chore
-      - maintenance
+    when:
+      labels:
+        - chore
+        - maintenance
   - type: pre-exclude
-    labels:
-      - skip-changelog
+    when:
+      labels:
+        - skip-changelog
   - type: version-resolver
     semver-increment: major
-    labels:
-      - breaking
-      - major
+    when:
+      labels:
+        - breaking
+        - major
   - type: version-resolver
     semver-increment: patch
 template: |
