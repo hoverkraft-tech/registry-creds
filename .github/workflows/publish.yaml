@@ -82,8 +82,13 @@ jobs:
 
       - name: Make container package public
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GHCR_PACKAGE_ADMIN_TOKEN }}
         run: |
+          if [[ -z "$GH_TOKEN" ]]; then
+            echo "GHCR_PACKAGE_ADMIN_TOKEN is required to make the container package public." >&2
+            exit 1
+          fi
+
           package_visibility_endpoint="/orgs/${GITHUB_REPOSITORY_OWNER}/packages/container/registry-creds/visibility"
           gh api --method PUT \
             "$package_visibility_endpoint" \
