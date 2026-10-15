@@ -38,6 +38,21 @@ The normal process is as follows, which becomes tedious and repetitive when you 
 
 * [Install the tool](GUIDE.md)
 
+## Releases
+
+Run the **Release** workflow manually from the default branch. Release Drafter
+uses pull-request labels to calculate Semantic Versioning increments:
+`breaking`/`major` for major releases, `feature`/`enhancement` for minor
+releases, and `bug`/`bugfix`/`fix` or `chore`/`maintenance` for patch releases.
+The first release is floored at `0.3.7` to avoid conflicting with upstream
+versions.
+
+The workflow requires a `GHCR_PACKAGE_ADMIN_TOKEN` repository secret containing
+a classic personal access token with package write access and permission to
+change the container package visibility. GitHub Actions must also be allowed to
+create and merge pull requests so the workflow can update the deployment
+manifest.
+
 ## Do you use `registry-creds`?
 
 `k3sup` was created by [Alex Ellis](https://github.com/users/alexellis/sponsorship) - the founder of [OpenFaaS &reg;](https://www.openfaas.com/) & [inlets](https://inlets.dev/). 
