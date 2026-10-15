@@ -1,54 +1,130 @@
-name: publish
+name: Release
 
 on:
-  push:
-    tags:
-      - '*'
+  workflow_dispatch:
 
-permissions:
-  actions: read
-  checks: write
-  contents: read
-  packages: write
+permissions: {}
+
+concurrency:
+  group: release-${{ github.repository }}
+  cancel-in-progress: false
 
 jobs:
-  publish:
+  plan:
+    if: github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      has-changes: ${{ steps.plan.outputs.has-changes }}
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - id: plan
+        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@a0a9d185c51c10710a5987822e78feb2b5ce1932 # 0.29.0
+        with:
+          github-token: ${{ github.token }}
+
+      - id: version
+        env:
+          PLANNED_TAG: ${{ steps.plan.outputs.tag }}
+        run: |
+          if [[ ! "$PLANNED_TAG" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "Release Drafter returned an invalid stable semantic version: $PLANNED_TAG" >&2
+            exit 1
+          fi
+
+          major=${BASH_REMATCH[1]}
+          minor=${BASH_REMATCH[2]}
+          patch=${BASH_REMATCH[3]}
+          if (( major == 0 && minor < 3 || major == 0 && minor == 3 && patch < 7 )); then
+            PLANNED_TAG=0.3.7
+          fi
+
+          echo "tag=$PLANNED_TAG" >> "$GITHUB_OUTPUT"
+
+  publish-image:
+    needs: plan
+    if: needs.plan.outputs.has-changes == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v7
         with:
-          fetch-depth: 1
-
-      - name: Get TAG
-        id: get_tag
-        run: echo TAG=${GITHUB_REF#refs/tags/} >> $GITHUB_ENV
-
-      - name: Get Repo Owner
-        id: get_repo_owner
-        run: echo "REPO_OWNER=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" > $GITHUB_ENV
+          ref: ${{ github.sha }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      - name: Login to Docker Registry
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v4
         with:
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
           registry: ghcr.io
 
-      - name: Local build
-        id: local_build
+      - name: Publish multi-architecture image
         uses: docker/build-push-action@v7
         with:
           build-args: |
-            Version=${{ env.TAG }}
+            Version=${{ needs.plan.outputs.tag }}
             GitCommit=${{ github.sha }}
-          outputs: "type=registry,push=true"
           platforms: linux/amd64,linux/arm/v7,linux/arm64
+          push: true
           tags: |
-            ghcr.io/${{ env.REPO_OWNER }}/registry-creds:${{ github.sha }}
-            ghcr.io/${{ env.REPO_OWNER }}/registry-creds:${{ env.TAG }}
-            ghcr.io/${{ env.REPO_OWNER }}/registry-creds:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}:${{ needs.plan.outputs.tag }}
+            ghcr.io/${{ github.repository }}:latest
+
+      - name: Make container package public
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          package_visibility_endpoint="/orgs/${GITHUB_REPOSITORY_OWNER}/packages/container/registry-creds/visibility"
+          gh api --method PUT \
+            "$package_visibility_endpoint" \
+            -f visibility=public
+
+  publish-release:
+    needs: [plan, publish-image]
+    if: needs.plan.outputs.has-changes == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+      - uses: hoverkraft-tech/ci-github-publish/actions/release/create@a0a9d185c51c10710a5987822e78feb2b5ce1932 # 0.29.0
+        with:
+          tag: ${{ needs.plan.outputs.tag }}
+          target-sha: ${{ github.sha }}
+          github-token: ${{ github.token }}
+
+  update-manifests:
+    needs: [plan, publish-image, publish-release]
+    if: needs.plan.outputs.has-changes == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Update deployment manifests
+        env:
+          IMAGE: ghcr.io/${{ github.repository }}
+          TAG: ${{ needs.plan.outputs.tag }}
+        run: make shrinkwrap
+
+      - uses: hoverkraft-tech/ci-github-common/actions/create-and-merge-pull-request@3a27d31e9ccefbe9609cc9165017ed100ff34a22 # 0.38.0
+        with:
+          github-token: ${{ github.token }}
+          branch: release/update-manifest-${{ needs.plan.outputs.tag }}
+          title: "chore(release): update manifest for ${{ needs.plan.outputs.tag }}"
+          body: "Update the deployment manifest to use registry-creds ${{ needs.plan.outputs.tag }}."
+          commit-message: "chore(release): update manifest for ${{ needs.plan.outputs.tag }}"

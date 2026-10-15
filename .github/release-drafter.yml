@@ -1,0 +1,35 @@
+name-template: "$RESOLVED_VERSION"
+tag-template: "$RESOLVED_VERSION"
+categories:
+  - title: "🚀 Features"
+    semver-increment: minor
+    labels:
+      - feature
+      - enhancement
+  - title: "🐛 Bug fixes"
+    semver-increment: patch
+    labels:
+      - bug
+      - bugfix
+      - fix
+  - title: "🧰 Maintenance"
+    semver-increment: patch
+    labels:
+      - chore
+      - maintenance
+  - type: pre-exclude
+    labels:
+      - skip-changelog
+  - type: version-resolver
+    semver-increment: major
+    labels:
+      - breaking
+      - major
+  - type: version-resolver
+    semver-increment: patch
+template: |
+  ## What's Changed
+
+  $CHANGES
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...$RESOLVED_TAG
