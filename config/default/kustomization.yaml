@@ -10,4 +10,4 @@ resources:
 images:
 - name: ghcr.io/hoverkraft-tech/registry-creds
   newName: ghcr.io/hoverkraft-tech/registry-creds
-  newTag: 0.3.7
+  newTag: 0.3.8
