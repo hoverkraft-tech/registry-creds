@@ -18,7 +18,6 @@ spec:
     listKind: ClusterPullSecretList
     plural: clusterpullsecrets
     singular: clusterpullsecret
-  preserveUnknownFields: false
   scope: Cluster
   versions:
   - additionalPrinterColumns:
