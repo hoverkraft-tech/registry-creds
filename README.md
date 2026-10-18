@@ -47,9 +47,6 @@ releases, and `bug`/`bugfix`/`fix` or `chore`/`maintenance` for patch releases.
 The first release is floored at `0.3.7` to avoid conflicting with upstream
 versions.
 
-The workflow requires a `GHCR_PACKAGE_ADMIN_TOKEN` repository secret containing
-a classic personal access token with package write access and permission to
-change the container package visibility. GitHub Actions must also be allowed to
 create and merge pull requests so the workflow can update the deployment
 manifest.
 
