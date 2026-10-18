@@ -20,15 +20,6 @@ Steps to reproduce the behavior:
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
-
-**Are you a GitHub Sponsor (Yes/No?)**
-
-Issues from sponsors get prioritised and a quicker response.
-
-Check at: https://github.com/sponsors/alexellis
-- [ ] Yes
-- [ ] No
-
 **Screenshots or console output**
 If applicable, add screenshots to help explain your problem.
 

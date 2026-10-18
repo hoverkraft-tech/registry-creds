@@ -16,7 +16,7 @@
 Apply the YAML for the manifest.
 
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/alexellis/registry-creds/master/manifest.yaml
+kubectl apply -f https://raw.githubusercontent.com/hoverkraft-tech/registry-creds/master/manifest.yaml
 ```
 
 Next, you'll need to create a seed secret and `ClusterPullSecret` referencing it.
@@ -102,7 +102,7 @@ arkade get kustomize
 Install with:
 
 ```bash
-git clone https://github.com/alexellis/registry-creds
+git clone https://github.com/hoverkraft-tech/registry-creds
 cd registry-creds
 make install
 make run
@@ -119,14 +119,14 @@ If you want to update your `ClusterPullSecret`, then update your main "seed" sec
 Disable:
 
 ```bash
-kubectl create ns alex
-kubectl annotate ns alex alexellis.io/registry-creds.ignore=1
+kubectl create ns demo
+kubectl annotate ns demo alexellis.io/registry-creds.ignore=1
 ```
 
 Enable:
 
 ```bash
-kubectl annotate ns alex alexellis.io/registry-creds.ignore=0 --overwrite
+kubectl annotate ns demo alexellis.io/registry-creds.ignore=0 --overwrite
 ```
 
 ## Testing it out

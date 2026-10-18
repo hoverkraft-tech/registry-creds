@@ -1,6 +1,6 @@
 ## registry-creds operator
 
-[![Sponsor this](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&link=https://github.com/sponsors/alexellis)](https://github.com/sponsors/alexellis) [![build](https://github.com/alexellis/registry-creds/actions/workflows/build.yaml/badge.svg)](https://github.com/alexellis/registry-creds/actions/workflows/build.yaml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![build](https://github.com/hoverkraft-tech/registry-creds/actions/workflows/build.yaml/badge.svg)](https://github.com/hoverkraft-tech/registry-creds/actions/workflows/build.yaml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 
 This operator can be used to propagate a single ImagePullSecret to all namespaces within your cluster, so that images are pulled using authentication.
@@ -50,15 +50,7 @@ versions.
 create and merge pull requests so the workflow can update the deployment
 manifest.
 
-## Do you use `registry-creds`?
 
-`k3sup` was created by [Alex Ellis](https://github.com/users/alexellis/sponsorship) - the founder of [OpenFaaS &reg;](https://www.openfaas.com/) & [inlets](https://inlets.dev/). 
-
-<a href="https://github.com/sponsors/alexellis/">
-<img alt="Sponsor this project" src="https://github.com/alexellis/alexellis/blob/master/sponsor-today.png" width="90%">
-</a>
-
-Want to see continued development? [Sponsor alexellis on GitHub](https://github.com/users/alexellis/sponsorship)
 
 ## License
 
