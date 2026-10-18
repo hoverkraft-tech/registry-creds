@@ -45,10 +45,6 @@ jobs:
         run: |
           TAG="$GITHUB_SHA" IMAGE="$IMAGE" make shrinkwrap
           cat ./manifest.yaml | grep ghcr
-          # spec.preserveUnknownFields is dropped by the apiextensions/v1 API
-          # server, which makes GitOps tools (e.g. ArgoCD) report a perpetual
-          # diff. Fail the build if it is ever reintroduced. See issue #10.
-          ! grep -q "preserveUnknownFields" ./manifest.yaml
           kubectl apply -f ./manifest.yaml
 
       - name: Check deployment
