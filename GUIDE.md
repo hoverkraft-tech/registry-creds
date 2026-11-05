@@ -83,7 +83,7 @@ arkade install registry-creds \
 
 ### Running the tool locally for development
 
-You can use the [arkade project](https://get-arkade.dev) to get CLIs the easy way, or find your way to the releases page of each application required.
+You can use the [arkade project](https://arkade.dev) to get CLIs the easy way, or find your way to the releases page of each application required.
 
 If you don't have a local Kubernetes cluster, you can create one with k3d, or KinD
 
