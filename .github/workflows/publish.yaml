@@ -21,7 +21,7 @@ jobs:
       tag: ${{ steps.version.outputs.tag }}
     steps:
       - id: plan
-        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@d034b96d52f6f32c58a93bcd87a06932f50d8b26 # 3.1.0
+        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@79515002f850e714d4c76f07983e6eb1ba97bea5 # 3.1.1
         with:
           github-token: ${{ github.token }}
 
@@ -88,10 +88,10 @@ jobs:
       contents: write
       pull-requests: read
     steps:
-      - uses: hoverkraft-tech/ci-github-publish/actions/release/create@d034b96d52f6f32c58a93bcd87a06932f50d8b26 # 3.1.0
+      - uses: hoverkraft-tech/ci-github-publish/actions/release/create@79515002f850e714d4c76f07983e6eb1ba97bea5 # 3.1.1
         with:
           tag: ${{ needs.plan.outputs.tag }}
-          target-sha: ${{ github.sha }}
+          target-ref: ${{ github.sha }}
           github-token: ${{ github.token }}
 
   update-manifests:
